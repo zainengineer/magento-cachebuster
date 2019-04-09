@@ -102,16 +102,16 @@ class Guidance_Cachebuster_Model_Parser
         }
 
         $timestamp = filemtime($path);
-
+        if (Mage::helper('guidance_cachebuster')->isQueryStringEnabled()){
+            return "$url?cache_timestamp=$timestamp";
+        }
         $final = array(
             $pathinfo['filename'],
             $timestamp,
             $pathinfo['extension'],
         );
-
         return str_replace($pathinfo['basename'], implode('.', $final), $url);
     }
-
     /**
      * Sanitize URL by removing query, fragment, user, or pass if found
      *

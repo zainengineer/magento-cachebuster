@@ -30,6 +30,8 @@ class Guidance_Cachebuster_Helper_Data extends Mage_Core_Helper_Data
      */
     const XML_PATH_IS_ENABLED = 'system/guidance_cachebuster/is_enabled';
 
+    const XML_QUERY_STRING_IS_ENABLED = 'system/guidance_cachebuster/is_query_string_enabled';
+
     /**
      * Configuration path for supported file extensions
      */
@@ -46,6 +48,7 @@ class Guidance_Cachebuster_Helper_Data extends Mage_Core_Helper_Data
      * @var array
      */
     protected $_fileExtensions;
+    protected $_cachedBaseDir;
 
     /**
      * Check if module is enabled
@@ -55,6 +58,17 @@ class Guidance_Cachebuster_Helper_Data extends Mage_Core_Helper_Data
     public function isEnabled()
     {
         return Mage::getStoreConfig(self::XML_PATH_IS_ENABLED);
+    }
+
+    /**
+     * Check if query string is enabled
+     *
+     *
+     * @return mixed
+     */
+    public function isQueryStringEnabled()
+    {
+        return Mage::getStoreConfig(self::XML_QUERY_STRING_IS_ENABLED);
     }
 
     /**
@@ -80,13 +94,13 @@ class Guidance_Cachebuster_Helper_Data extends Mage_Core_Helper_Data
     {
         $urlKeys= $this->_getUrlKeys();
         $urlMap = array();
-
+        $basePath = $this->getPublicBaseDir();
         if (!empty($urlKeys)) {
 
             $urlKeys = explode(',', $urlKeys);
 
             foreach ($urlKeys as $urlKey) {
-                $urlMap[Mage::getBaseUrl($urlKey)] = Mage::getBaseDir() . '/' . $urlKey . '/';
+                $urlMap[Mage::getBaseUrl($urlKey)] = $basePath . '/' . $urlKey . '/';
             }
         }
 
@@ -97,6 +111,15 @@ class Guidance_Cachebuster_Helper_Data extends Mage_Core_Helper_Data
         );
         $parser = Mage::getModel('guidance_cachebuster/parser', $config);
         return $parser;
+    }
+
+    protected function getPublicBaseDir()
+    {
+        if (is_null($this->_cachedBaseDir)){
+            //some magento setup use a separate public folder to keep app folder out of magento
+            $this->_cachedBaseDir = dirname(Mage::getBaseDir('skin'));
+        }
+        return $this->_cachedBaseDir;
     }
 
     /**
